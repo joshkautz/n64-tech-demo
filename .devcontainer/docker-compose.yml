@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  libdragon-dev:
+    # Explicitly specify platform for Apple Silicon compatibility
+    platform: linux/amd64
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      # Mount the project directory
+      - ..:/workspaces/n64-tech-demo:cached
+
+      # Persist bash history across container rebuilds
+      - n64-tech-demo-bashhistory:/home/dev/.bash_history
+
+    # Keep container running
+    command: sleep infinity
+
+    # Run as non-root user
+    user: dev
+
+    working_dir: /workspaces/n64-tech-demo
+
+volumes:
+  n64-tech-demo-bashhistory:

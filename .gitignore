@@ -1,0 +1,22 @@
+# Build artifacts
+build/
+*.z64
+*.n64
+*.v64
+*.elf
+
+# Editor files
+# Keep tasks.json (project-specific build tasks)
+# Ignore user-specific settings and workspace files
+.vscode/settings.json
+.vscode/*.code-workspace
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dev Container volumes
+.devcontainer/.bash_history

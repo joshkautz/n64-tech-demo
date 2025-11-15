@@ -1,0 +1,125 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build ROM",
+      "type": "shell",
+      "command": "make",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "detail": "🎮 Quick incremental build (optimized -O2)"
+    },
+    {
+      "label": "Build ROM (Debug)",
+      "type": "shell",
+      "command": "make debug",
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "detail": "🐛 Incremental build with debug symbols (-g -O0)"
+    },
+    {
+      "label": "Rebuild All",
+      "type": "shell",
+      "command": "make clean && make",
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "detail": "🔨 Clean rebuild from scratch (optimized)"
+    },
+    {
+      "label": "Rebuild All (Debug)",
+      "type": "shell",
+      "command": "make clean && make debug",
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "detail": "🔨 Clean rebuild with debug symbols"
+    },
+    {
+      "label": "Clean Build Artifacts",
+      "type": "shell",
+      "command": "make clean",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "detail": "🧹 Remove all build artifacts and ROM"
+    },
+    {
+      "label": "Show ROM Info",
+      "type": "shell",
+      "command": "ls -lh *.z64 2>/dev/null && echo '\n──────────────────────────────' && file *.z64 || echo 'No ROM found. Build first with: make'",
+      "group": "none",
+      "presentation": {
+        "echo": false,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "detail": "📊 Show ROM file size and information"
+    },
+    {
+      "label": "Open ROM Location",
+      "type": "shell",
+      "command": "echo 'ROM location: ${workspaceFolder}/n64-tech-demo.z64' && echo '\nTo open in Ares on your Mac:\n  1. Open Finder\n  2. Navigate to ${workspaceFolder}\n  3. Double-click n64-tech-demo.z64'",
+      "group": "none",
+      "presentation": {
+        "echo": false,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "detail": "📂 Show where to find the ROM file on your Mac"
+    }
+  ]
+}

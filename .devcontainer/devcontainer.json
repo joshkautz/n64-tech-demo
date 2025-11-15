@@ -1,0 +1,75 @@
+{
+  // Use Docker Compose for proper platform specification (Apple Silicon compatible)
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "libdragon-dev",
+  "workspaceFolder": "/workspaces/n64-tech-demo",
+
+  // Container name
+  "name": "N64 Libdragon Development",
+
+  // OPTIONAL: VS Code specific enhancements for C/C++ development
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // C/C++ IntelliSense, debugging, and code browsing
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        // Makefile support with syntax highlighting
+        "ms-vscode.makefile-tools"
+      ],
+      "settings": {
+        // ──────────────────────────────────────────────────────────────
+        // EXTENSION MANAGEMENT
+        // ──────────────────────────────────────────────────────────────
+        // Disable CMake Tools - This project uses Make, not CMake
+        "cmake.configureOnOpen": false,
+        "cmake.showNotAllDocumentsSavedQuestion": false,
+
+        // ──────────────────────────────────────────────────────────────
+        // C/C++ CONFIGURATION
+        // ──────────────────────────────────────────────────────────────
+        // Configure C/C++ IntelliSense for MIPS N64 development
+        "C_Cpp.default.compilerPath": "/n64_toolchain/bin/mips64-elf-gcc",
+        "C_Cpp.default.intelliSenseMode": "gcc-x64",
+        "C_Cpp.default.cStandard": "gnu11",
+        "C_Cpp.default.cppStandard": "gnu++17",
+        "C_Cpp.default.includePath": [
+          "${workspaceFolder}/src",
+          "/n64_toolchain/mips64-elf/include"
+        ],
+        "C_Cpp.default.defines": [
+          "N64",
+          "__mips__",
+          "_LANGUAGE_C"
+        ],
+
+        // ──────────────────────────────────────────────────────────────
+        // FILES & EDITOR
+        // ──────────────────────────────────────────────────────────────
+        // Exclude build artifacts from file explorer
+        "files.exclude": {
+          "**/.git": true,
+          "**/.DS_Store": true,
+          "**/build": true,
+          "**/*.z64": false
+        },
+        // File associations
+        "files.associations": {
+          "*.z64": "binary",
+          "*.n64": "binary",
+          "*.v64": "binary",
+          "Makefile": "makefile"
+        },
+
+        // ──────────────────────────────────────────────────────────────
+        // TERMINAL
+        // ──────────────────────────────────────────────────────────────
+        // Use bash in the Dev Container
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  // OPTIONAL: Helpful message after container creation
+  "postCreateCommand": "echo '✓ Libdragon Dev Container Ready! Build your ROM with: make'"
+}
