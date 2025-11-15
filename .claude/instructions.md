@@ -346,22 +346,238 @@ Debug builds:
 - Profile with emulator's performance tools
 - Watch for RDP command buffer overflow
 
-## Resources
+## Resources and Examples
 
 ### Official Documentation
-- Libdragon API Docs: https://libdragon.dev/
-- N64brew Wiki: Community knowledge base
-- N64 Hardware Specs: CPU, RCP, memory maps
+- **Libdragon API Docs**: https://libdragon.dev/ - Complete API reference with examples
+- **Libdragon GitHub**: https://github.com/DragonMinded/libdragon - SDK source code and official examples
+- **N64brew Wiki**: https://n64brew.dev/wiki/Main_Page - Community knowledge base with tutorials and technical specs
+- **N64 Squid**: https://n64squid.com/ - Modern N64 development tutorials
 
-### Learning Resources
-- N64 Squid tutorials (referenced in project setup)
-- Example projects in Libdragon repo
-- N64brew Discord community
+### Essential Libraries
+
+#### Tiny3D - 3D Graphics Library
+- **Repository**: https://github.com/HailToDodongo/tiny3d
+- **Purpose**: Simplified 3D rendering on N64 using Libdragon
+- **Use Cases**: 3D games, tech demos with models and cameras
+- **Key Features**: Model loading, camera system, lighting, texture mapping
+
+Many successful homebrew games use Tiny3D alongside Libdragon for 3D graphics.
+
+### Complete Games and Applications
+
+These are production-quality projects demonstrating real-world Libdragon usage:
+
+#### Games Using Libdragon + Tiny3D
+- **Driving Strikers 64**: https://github.com/SpookyIluha/Driving-Strikers-64 - Vehicle combat game
+- **CounterEmotion Bar**: https://github.com/SpookyIluha/CounterEmotion-Bar - Bar management game
+- **Space Waves N64**: https://github.com/SpookyIluha/SpaceWavesN64 - Space shooter
+- **Hungover**: https://github.com/RosieSapphire/Hungover - First-person exploration
+
+#### Games Using Libdragon (2D/Other)
+- **DDLC64**: https://github.com/SpookyIluha/DDLC64-LibdragonVNE - Visual novel engine demo
+- **Super Haxagon64**: https://github.com/SpookyIluha/Super-Haxagon64 - Fast-paced arcade game
+- **Starship Madness 64**: https://github.com/SpookyIluha/StarshipMadness64 - Space combat
+- **FNaF64**: https://github.com/RosieSapphire/FNaF64 - Horror game implementation
+
+### Tech Demos
+
+Focused demonstrations of specific techniques:
+
+- **BrewChristmas**: https://github.com/SpookyIluha/BrewChristmas - Tiny3D rendering showcase
+- **Brew Skydome N64**: https://github.com/SpookyIluha/Brew-SkydomeN64 - Skydome/skybox rendering
+- **BrewReality**: https://github.com/SpookyIluha/BrewReality - Advanced rendering techniques
+
+### Community Projects
+
+- **N64brew Game Jam 2024**: https://github.com/n64brew/N64brew-GameJam2024 - Collection of jam entries (mini-games)
+- **N64brew Discord**: Active development community for questions and collaboration
 
 ### Development Tools
-- **Ares**: Recommended emulator for development/debugging
-- **Make**: Build automation
-- **GDB**: Advanced debugging (optional)
+- **Ares**: Recommended emulator for development/debugging (best accuracy and debugging features)
+- **Make**: Build automation (required)
+- **GDB**: Advanced debugging with `mips64-elf-gdb` (optional)
+- **mksprite**: Sprite conversion tool (included with Libdragon)
+- **audioconv64**: Audio asset conversion (included with Libdragon)
+
+### Common Code Patterns from Community Projects
+
+#### 3D Rendering Setup (Tiny3D Pattern)
+Many projects use Tiny3D for 3D graphics. Common initialization:
+
+```c
+#include <t3d/t3d.h>
+#include <t3d/t3dmodel.h>
+
+// Initialize Tiny3D
+t3d_init((T3DInitParams){
+    .screen_width = 320,
+    .screen_height = 240,
+    .font = NULL
+});
+
+// Load 3D model
+T3DModel *model = t3d_model_load("rom:/models/player.t3dm");
+
+// Main loop with 3D rendering
+while (1) {
+    t3d_frame_start();
+
+    // Set up camera
+    t3d_viewport_set_projection(&viewport, T3D_DEG_TO_RAD(60.0f), 10.0f, 200.0f);
+    t3d_viewport_look_at(&viewport, &cam_pos, &cam_target, &cam_up);
+
+    // Draw model
+    t3d_model_draw(model);
+
+    rdp_detach_display();
+    display_show(disp);
+}
+```
+
+#### Sprite Batch Rendering (2D Games Pattern)
+For 2D games, batch sprite rendering is common:
+
+```c
+// Load sprite sheet
+sprite_t *sprites = sprite_load("rom:/gfx/spritesheet.sprite");
+
+// In render loop
+rdp_attach_display(disp);
+rdp_enable_texture_copy();
+
+// Draw multiple sprites
+for (int i = 0; i < entity_count; i++) {
+    if (entities[i].active) {
+        rdp_draw_sprite(
+            entities[i].x,
+            entities[i].y,
+            entities[i].sprite,
+            MIRROR_DISABLED
+        );
+    }
+}
+
+rdp_detach_display();
+```
+
+#### Audio System Setup (Common Pattern)
+Most games use this audio initialization pattern:
+
+```c
+#include <audio.h>
+#include <wav64.h>
+
+// Initialize
+audio_init(44100, 4);
+
+// Load and play background music
+xm64player_t music;
+xm64player_open(&music, "rom:/music/bgm.xm64");
+xm64player_play(&music, 0);  // Channel 0 for music
+
+// Load sound effects
+wav64_t jump_sfx;
+wav64_open(&jump_sfx, "rom:/sfx/jump.wav64");
+
+// Play SFX when needed
+if (player_jumped) {
+    wav64_play(&jump_sfx, 31);  // Channel 31 for SFX
+}
+```
+
+#### Game State Management (Common Pattern)
+State machines are standard for game flow:
+
+```c
+typedef enum {
+    GAME_STATE_MENU,
+    GAME_STATE_PLAYING,
+    GAME_STATE_PAUSED,
+    GAME_STATE_GAME_OVER
+} game_state_t;
+
+game_state_t current_state = GAME_STATE_MENU;
+
+void update(float delta_time) {
+    switch (current_state) {
+        case GAME_STATE_MENU:
+            update_menu();
+            if (start_pressed) current_state = GAME_STATE_PLAYING;
+            break;
+
+        case GAME_STATE_PLAYING:
+            update_gameplay(delta_time);
+            if (pause_pressed) current_state = GAME_STATE_PAUSED;
+            break;
+
+        case GAME_STATE_PAUSED:
+            if (start_pressed) current_state = GAME_STATE_PLAYING;
+            break;
+
+        case GAME_STATE_GAME_OVER:
+            if (start_pressed) current_state = GAME_STATE_MENU;
+            break;
+    }
+}
+```
+
+#### Delta Time Calculation (Frame-Independent Movement)
+For smooth gameplay across different frame rates:
+
+```c
+#include <timer.h>
+
+unsigned long long last_time = 0;
+
+void game_loop(void) {
+    while (1) {
+        // Calculate delta time
+        unsigned long long current_time = get_ticks();
+        float delta_time = (float)(current_time - last_time) / TICKS_PER_SECOND;
+        last_time = current_time;
+
+        // Use delta time for movement
+        player.x += player.velocity_x * delta_time;
+        player.y += player.velocity_y * delta_time;
+
+        // Render
+        render_frame();
+    }
+}
+```
+
+### Learning Path Recommendations
+
+**Beginner (Console and 2D)**
+1. Start with console output (current project state)
+2. Add sprite rendering with RDP
+3. Implement controller input and simple movement
+4. Add sound effects with WAV64
+5. Study: Super Haxagon64, Starship Madness 64
+
+**Intermediate (Advanced 2D)**
+1. Implement sprite batching and layers
+2. Add background music with XM64
+3. Create particle systems
+4. Build state machine for game flow
+5. Study: DDLC64, N64brew Game Jam entries
+
+**Advanced (3D Graphics)**
+1. Learn Tiny3D library basics
+2. Implement camera system
+3. Load and render 3D models
+4. Add lighting and textures
+5. Study: BrewChristmas, Brew Skydome, Driving Strikers 64
+
+### Where to Find Answers
+
+When you need help:
+1. **Check official examples**: Libdragon repo has examples for all major features
+2. **Study similar games**: Find a game doing what you want and examine the code
+3. **Ask here with specifics**: Provide error messages, code snippets, what you've tried
+4. **N64brew Discord**: Active community for real-time help
+5. **N64brew Wiki**: Technical documentation and tutorials
 
 ## Getting Help
 
