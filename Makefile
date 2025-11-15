@@ -6,7 +6,7 @@ include $(N64_INST)/include/n64.mk
 PROJECT_NAME = n64-tech-demo
 
 # Source files (relative to SOURCE_DIR)
-SRCS = main.c
+SRCS = main.c parallax.c
 
 # Compiler flags
 # Libdragon requires GNU extensions
